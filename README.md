@@ -1,6 +1,7 @@
 # DSA Puzzles
 
-**https://github.com/ujjwal8880/dsa-puzzles**
+**Live:** https://dsa-puzzles.vercel.app  
+**Repo:** https://github.com/ujjwal8880/dsa-puzzles
 
 An interactive DSA learning platform with puzzle-based learning, AI hints, step-by-step dry runs, and a built-in coding editor. Built with Next.js, AI SDK, and Groq.
 
