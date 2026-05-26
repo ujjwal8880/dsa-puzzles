@@ -4,7 +4,7 @@ import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCompletion } from '@ai-sdk/react';
-import { ArrowRight, Puzzle, Zap, Trophy, BookOpen, Play, Star, Mail, Building2, Sparkles, RefreshCw } from 'lucide-react';
+import { ArrowRight, Puzzle, Zap, Trophy, BookOpen, Play, Star, Mail, Building2, Sparkles, RefreshCw, Github } from 'lucide-react';
 import { staggerContainer, fadeUp, scaleIn, slideRight } from '@/lib/animations';
 import { ALL_QUESTIONS } from '@/data/questions';
 import { CATEGORIES } from '@/data/categories';
@@ -405,9 +405,18 @@ export function LandingPage() {
             </div>
           </div>
 
-          <p className="text-xs text-[#3d3d5c]">
-            Open source • No login required • Free forever
-          </p>
+          <div className="flex flex-col items-center sm:items-end gap-2">
+            <a
+              href="https://github.com/ujjwal8880/dsa-puzzles"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-xs text-[#6b6b8a] hover:text-[#e8e8f0] transition-colors"
+            >
+              <Github size={13} />
+              ujjwal8880/dsa-puzzles
+            </a>
+            <p className="text-xs text-[#3d3d5c]">Open source · No login required · Free forever</p>
+          </div>
         </div>
       </footer>
     </div>

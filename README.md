@@ -1,36 +1,104 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DSA Puzzles
 
-## Getting Started
+**https://github.com/ujjwal8880/dsa-puzzles**
 
-First, run the development server:
+An interactive DSA learning platform with puzzle-based learning, AI hints, step-by-step dry runs, and a built-in coding editor. Built with Next.js, AI SDK, and Groq.
+
+---
+
+## Features
+
+- 160+ DSA questions across 6 categories
+- Blind 75 and Top Interview 150 question sets
+- 6-step learning flow: Puzzle → Hints → Dry Run → Complexity → Code It → Interview
+- AI-powered nudges via Groq (free, no login needed)
+- XP / gamification system
+- Vercel Analytics with custom events
+
+---
+
+## Local setup
 
 ```bash
+git clone https://github.com/ujjwal8880/dsa-puzzles.git
+cd dsa-puzzles
+npm install
+cp .env.example .env.local
+# Add your GROQ_API_KEY to .env.local — get one free at console.groq.com
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Contributing
 
-## Learn More
+Full guide: [CONTRIBUTING.md](CONTRIBUTING.md)
 
-To learn more about Next.js, take a look at the following resources:
+### Quick steps
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+# 1. Fork the repo on GitHub
+# 2. Clone your fork
+git clone https://github.com/<your-username>/dsa-puzzles.git
+cd dsa-puzzles
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# 3. Create a branch (follow naming convention)
+git checkout -b feat/your-feature-name
+# or: fix/bug-description | question/question-name | docs/what-changed
 
-## Deploy on Vercel
+# 4. Make your changes
+# 5. Run checks locally before pushing
+npm run lint
+npx tsc --noEmit
+npm run build
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# 6. Commit with a clear message
+git commit -m "feat: add merge intervals question with dry-run steps"
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# 7. Push and open a PR
+git push origin feat/your-feature-name
+```
+
+Then open a PR at **https://github.com/ujjwal8880/dsa-puzzles/compare**.
+
+---
+
+### PR rules (enforced by CI)
+
+All PRs must pass these automated checks or they cannot be merged:
+
+| Check | Rule |
+|-------|------|
+| **PR title** | Must follow `type: description` — e.g. `feat: add binary search question` |
+| **PR description** | Cannot be empty or one-liners — explain what and why |
+| **Lint** | `npm run lint` must be clean |
+| **Type check** | `npx tsc --noEmit` must pass |
+| **Build** | `npm run build` must succeed |
+| **Secret scan** | No leaked API keys allowed |
+
+Valid PR title types: `feat`, `fix`, `refactor`, `docs`, `chore`, `test`, `question`, `style`, `perf`, `ci`
+
+---
+
+### Merge policy
+
+Only [@ujjwal8880](https://github.com/ujjwal8880) can merge PRs. Every PR requires an approval from the repo owner before it can be merged.
+
+---
+
+## Stack
+
+- [Next.js](https://nextjs.org) — App Router
+- [AI SDK](https://sdk.vercel.ai) + [Groq](https://groq.com) — streaming AI hints
+- [Framer Motion](https://www.framer.com/motion/) — animations
+- [Zustand](https://zustand-demo.pmnd.rs/) — state / progress persistence
+- [Vercel Analytics](https://vercel.com/analytics) — custom event tracking
+- [Monaco Editor](https://microsoft.github.io/monaco-editor/) — in-browser code editor
+
+---
+
+## License
+
+MIT
