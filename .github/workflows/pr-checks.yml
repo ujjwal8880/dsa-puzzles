@@ -1,0 +1,85 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, edited]
+
+jobs:
+  validate-pr-title:
+    name: Validate PR title
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR title format
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          if ! echo "$PR_TITLE" | grep -qE '^(feat|fix|refactor|docs|chore|test|question|style|perf|ci): .{5,}'; then
+            echo "::error::PR title must follow 'type: description' format"
+            echo "::error::Valid types: feat, fix, refactor, docs, chore, test, question, style, perf, ci"
+            echo "::error::Example: 'feat: add merge intervals question'"
+            echo "::error::Got: '$PR_TITLE'"
+            exit 1
+          fi
+          echo "PR title format OK: $PR_TITLE"
+
+  build-and-lint:
+    name: Build & lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
+        env:
+          # Stub keys so the build doesn't fail on missing env vars
+          GROQ_API_KEY: stub_key_for_build_check
+
+  check-no-secrets:
+    name: No secrets committed
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan for secrets
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.pull_request.base.sha }}
+          head: ${{ github.event.pull_request.head.sha }}
+          extra_args: --only-verified
+
+  validate-pr-description:
+    name: Validate PR has description
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR body is not empty
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          if [ -z "$(echo "$PR_BODY" | tr -d '[:space:]')" ]; then
+            echo "::error::PR description cannot be empty. Fill in the pull_request_template."
+            exit 1
+          fi
+          WORD_COUNT=$(echo "$PR_BODY" | wc -w)
+          if [ "$WORD_COUNT" -lt 10 ]; then
+            echo "::error::PR description is too short ($WORD_COUNT words). Explain what changed and why."
+            exit 1
+          fi
+          echo "PR description OK ($WORD_COUNT words)"
