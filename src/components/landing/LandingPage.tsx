@@ -84,12 +84,49 @@ const STEPS = [
 const TWO_SUM_NUMBERS = [2, 7, 11, 15];
 const TWO_SUM_TARGET = 9;
 
+const COMPANIES = [
+  { name: 'Amazon', color: 'text-orange-400' },
+  { name: 'Google', color: 'text-blue-400' },
+  { name: 'Meta', color: 'text-sky-400' },
+  { name: 'Microsoft', color: 'text-sky-300' },
+  { name: 'Apple', color: 'text-slate-300' },
+  { name: 'Bloomberg', color: 'text-purple-400' },
+  { name: 'LinkedIn', color: 'text-cyan-400' },
+  { name: 'Adobe', color: 'text-rose-400' },
+  { name: 'Stripe', color: 'text-violet-400' },
+  { name: 'Uber', color: 'text-slate-200' },
+  { name: 'Airbnb', color: 'text-pink-400' },
+  { name: 'Netflix', color: 'text-red-400' },
+  { name: 'Goldman Sachs', color: 'text-emerald-400' },
+  { name: 'DoorDash', color: 'text-red-300' },
+];
+
+function CompanyMarquee() {
+  const doubled = [...COMPANIES, ...COMPANIES];
+  return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-5">
+      <p className="text-center text-[10px] text-[#3d3d5c] uppercase tracking-[3px] mb-4">Questions asked at</p>
+      <div className="overflow-hidden relative">
+        <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-[#0a0a0f] to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-[#0a0a0f] to-transparent z-10 pointer-events-none" />
+        <div className="flex animate-marquee gap-8 w-max">
+          {doubled.map((c, i) => (
+            <span key={i} className={cn('text-sm font-semibold whitespace-nowrap', c.color)}>
+              {c.name}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function HeroPuzzle() {
   const [selected, setSelected] = useState<number[]>([]);
-  const [phase, setPhase] = useState<'idle' | 'wrong' | 'solved'>('idle');
+  const [phase, setPhase] = useState<'idle' | 'wrong' | 'solved' | 'revealed'>('idle');
 
   const handleSelect = (idx: number) => {
-    if (phase === 'solved') return;
+    if (phase === 'solved' || phase === 'revealed') return;
 
     if (selected.includes(idx)) {
       setSelected(selected.filter((i) => i !== idx));
@@ -104,6 +141,7 @@ function HeroPuzzle() {
       if (sum === TWO_SUM_TARGET) {
         setSelected(next);
         setPhase('solved');
+        setTimeout(() => setPhase('revealed'), 900);
       } else {
         setSelected(next);
         setPhase('wrong');
@@ -114,31 +152,34 @@ function HeroPuzzle() {
     }
   };
 
+  const isSolvedOrRevealed = phase === 'solved' || phase === 'revealed';
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.45, duration: 0.5, ease: 'easeOut' }}
-      className="w-full max-w-xs mx-auto mt-8"
+      className="w-full max-w-sm mx-auto mt-8"
     >
       <div className={cn(
-        'relative rounded-2xl bg-[#111118] border overflow-hidden transition-colors duration-300',
-        phase === 'solved' ? 'border-emerald-500/30' : 'border-[#1e1e2e]',
+        'relative rounded-2xl bg-[#111118] border overflow-hidden transition-all duration-500',
+        isSolvedOrRevealed ? 'border-emerald-500/40 shadow-[0_0_30px_rgba(16,185,129,0.08)]' : 'border-[#1e1e2e]',
       )}>
-        {phase === 'solved' && (
+        {isSolvedOrRevealed && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
             className="absolute inset-0 bg-emerald-500/[0.03] pointer-events-none" />
         )}
 
         <div className="p-5">
-          {/* Puzzle header */}
-          <div className="flex items-center justify-between mb-4">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
               <div className="w-5 h-5 rounded-md bg-indigo-600/20 flex items-center justify-center">
                 <Puzzle size={11} className="text-indigo-400" />
               </div>
               <span className="text-xs font-semibold text-[#e8e8f0]">Two Sum</span>
               <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-semibold">EASY</span>
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-400 font-semibold">Blind 75</span>
             </div>
             <div className="flex items-center gap-1.5">
               <span className="text-[10px] text-[#4a4a6a]">target =</span>
@@ -147,27 +188,30 @@ function HeroPuzzle() {
           </div>
 
           {/* Number cards */}
-          <div className="flex gap-2.5 justify-center mb-4">
+          <div className="flex gap-3 justify-center mb-5">
             {TWO_SUM_NUMBERS.map((num, idx) => {
               const isSel = selected.includes(idx);
               const isWrong = phase === 'wrong' && isSel;
-              const isSolved = phase === 'solved' && isSel;
-              const isDimmed = phase === 'solved' && !isSel;
+              const isSolvedCard = isSolvedOrRevealed && isSel;
+              const isDimmed = isSolvedOrRevealed && !isSel;
               return (
                 <motion.button
                   key={idx}
                   onClick={() => handleSelect(idx)}
-                  animate={isWrong ? { x: [-3, 3, -3, 3, 0] } : {}}
-                  transition={isWrong ? { duration: 0.28 } : {}}
-                  whileHover={phase !== 'solved' && !isSel ? { scale: 1.06 } : {}}
-                  whileTap={phase !== 'solved' ? { scale: 0.94 } : {}}
+                  animate={
+                    isWrong ? { x: [-3, 3, -3, 3, 0] } :
+                    isSolvedCard ? { scale: [1, 1.12, 1.05] } : {}
+                  }
+                  transition={isWrong ? { duration: 0.28 } : { duration: 0.3 }}
+                  whileHover={!isSolvedOrRevealed && !isSel ? { scale: 1.08, y: -2 } : {}}
+                  whileTap={!isSolvedOrRevealed ? { scale: 0.93 } : {}}
                   className={cn(
-                    'w-14 h-14 rounded-xl font-bold text-xl border-2 transition-colors duration-150 cursor-pointer select-none',
-                    isDimmed && 'opacity-25',
+                    'w-16 h-16 rounded-2xl font-black text-2xl border-2 transition-all duration-200 cursor-pointer select-none',
+                    isDimmed && 'opacity-20',
                     isWrong && 'bg-rose-500/15 border-rose-500/50 text-rose-400',
-                    isSolved && 'bg-emerald-500/15 border-emerald-500/50 text-emerald-400',
-                    isSel && !isWrong && !isSolved && 'bg-indigo-500/15 border-indigo-500/55 text-indigo-300',
-                    !isSel && !isDimmed && 'bg-[#0d0d13] border-[#2a2a3e] text-[#e8e8f0] hover:border-indigo-500/40 hover:text-indigo-200'
+                    isSolvedCard && 'bg-emerald-500/15 border-emerald-500/50 text-emerald-400 animate-pulse-glow',
+                    isSel && !isWrong && !isSolvedCard && 'bg-indigo-500/15 border-indigo-500/55 text-indigo-300 shadow-[0_0_12px_rgba(99,102,241,0.2)]',
+                    !isSel && !isDimmed && 'bg-[#0d0d13] border-[#2a2a3e] text-[#e8e8f0] hover:border-indigo-500/50 hover:shadow-[0_0_12px_rgba(99,102,241,0.15)] hover:text-indigo-200'
                   )}
                 >
                   {num}
@@ -176,8 +220,8 @@ function HeroPuzzle() {
             })}
           </div>
 
-          {/* Status line */}
-          <div className="h-10 flex items-center justify-center">
+          {/* Status */}
+          <div className="min-h-[40px] flex items-center justify-center">
             <AnimatePresence mode="wait">
               {phase === 'idle' && selected.length === 0 && (
                 <motion.p key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -201,15 +245,43 @@ function HeroPuzzle() {
                 </motion.p>
               )}
               {phase === 'solved' && (
-                <motion.div key="solved" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-                  className="text-center"
+                <motion.p key="solved" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+                  className="text-sm font-bold text-emerald-400 text-center"
                 >
-                  <p className="text-sm font-semibold text-emerald-400">
-                    🎉 {TWO_SUM_NUMBERS[selected[0]]} + {TWO_SUM_NUMBERS[selected[1]]} = 9
-                  </p>
-                  <p className="text-[10px] text-[#6b6b8a] mt-0.5">
-                    <span className="text-indigo-400 font-medium">HashMap pattern</span> — you get it
-                  </p>
+                  🎉 {TWO_SUM_NUMBERS[selected[0]]} + {TWO_SUM_NUMBERS[selected[1]]} = 9
+                </motion.p>
+              )}
+              {phase === 'revealed' && (
+                <motion.div key="revealed" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+                  className="w-full"
+                >
+                  {/* Pattern reveal */}
+                  <div className="flex items-center justify-center gap-2 mb-3">
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-500/15 border border-indigo-500/30"
+                    >
+                      <span className="text-sm">💡</span>
+                      <span className="text-xs font-bold text-indigo-300 uppercase tracking-wide">HashMap Pattern Unlocked</span>
+                    </motion.div>
+                  </div>
+                  {/* Mini AI nudge teaser */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.25 }}
+                    className="rounded-xl bg-[#0d0d13] border border-indigo-500/15 px-3 py-2.5"
+                  >
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <Sparkles size={9} className="text-indigo-400" />
+                      <span className="text-[9px] font-bold text-indigo-400 uppercase tracking-wider">AI would have nudged</span>
+                    </div>
+                    <p className="text-[11px] text-[#8888aa] italic leading-relaxed">
+                      "What if you could look up each number's complement in O(1) time?"
+                    </p>
+                  </motion.div>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -218,7 +290,7 @@ function HeroPuzzle() {
 
         {/* Solved CTA strip */}
         <AnimatePresence>
-          {phase === 'solved' && (
+          {phase === 'revealed' && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
@@ -240,7 +312,7 @@ function HeroPuzzle() {
         </AnimatePresence>
       </div>
 
-      {phase !== 'solved' && (
+      {phase === 'idle' && selected.length === 0 && (
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}
           className="text-center text-[10px] text-[#2d2d45] mt-2"
         >
@@ -491,10 +563,9 @@ export function LandingPage() {
             <span className="gradient-text">Start thinking.</span>
           </motion.h1>
 
-          <motion.p variants={fadeUp} className="text-base sm:text-lg text-[#6b6b8a] max-w-lg leading-relaxed">
-            Interactive DSA puzzles that build real intuition —
-            so you understand <em className="text-[#e8e8f0] not-italic font-medium">why</em> algorithms work,
-            not just how to pass the interview.
+          <motion.p variants={fadeUp} className="text-base sm:text-lg text-[#6b6b8a] max-w-md leading-relaxed">
+            Solve puzzles. Build intuition. Unlock code.
+            <span className="text-[#e8e8f0]"> No memorization required.</span>
           </motion.p>
 
           <motion.div variants={fadeUp} className="flex items-center gap-3 flex-wrap justify-center">
@@ -527,6 +598,9 @@ export function LandingPage() {
           <HeroPuzzle />
         </motion.div>
       </section>
+
+      {/* ── Company Marquee ── */}
+      <CompanyMarquee />
 
       {/* ── Stats Bar ── */}
       <StatsBar />
@@ -575,6 +649,9 @@ export function LandingPage() {
         </div>
       </section>
 
+      {/* ── AI Demo ── */}
+      <AIDemoSection />
+
       {/* ── Features ── */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
@@ -609,9 +686,6 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ── AI Demo ── */}
-      <AIDemoSection />
-
       {/* ── Featured Questions ── */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         <div className="flex items-center justify-between mb-8">
@@ -636,7 +710,7 @@ export function LandingPage() {
                 transition={{ delay: i * 0.05 }}
               >
                 <Link href={`/problem/${q.slug}`}
-                  className="group flex flex-col gap-3 p-5 rounded-2xl bg-[#111118] border border-[#1e1e2e] hover:border-indigo-500/30 hover:bg-[#16161f] hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-200 h-full"
+                  className="group flex flex-col gap-3 p-5 rounded-2xl bg-[#111118] border border-[#1e1e2e] hover:border-indigo-500/40 hover:bg-[#13131c] hover:shadow-[0_0_24px_rgba(99,102,241,0.1)] hover:scale-[1.01] transition-all duration-200 h-full"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
