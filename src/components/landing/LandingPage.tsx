@@ -72,6 +72,17 @@ const FEATURES = [
   },
 ];
 
+const CONFETTI_DOTS = [
+  { x: '8%',  color: '#6366f1', delay: 0,    size: 5 },
+  { x: '20%', color: '#10b981', delay: 0.06, size: 4 },
+  { x: '33%', color: '#f59e0b', delay: 0.03, size: 6 },
+  { x: '48%', color: '#ec4899', delay: 0.09, size: 4 },
+  { x: '62%', color: '#6366f1', delay: 0.04, size: 5 },
+  { x: '75%', color: '#10b981', delay: 0.07, size: 4 },
+  { x: '86%', color: '#f59e0b', delay: 0.02, size: 5 },
+  { x: '93%', color: '#ec4899', delay: 0.11, size: 3 },
+];
+
 const STEPS = [
   { num: '01', label: 'Solve the Puzzle', desc: 'Interactive visual challenge — no code required', icon: Puzzle, color: 'text-indigo-400', border: 'border-indigo-500/20', glow: 'bg-indigo-500/5' },
   { num: '02', label: 'Build Intuition', desc: 'Progressive hints reveal the core insight', icon: Lightbulb, color: 'text-amber-400', border: 'border-amber-500/20', glow: 'bg-amber-500/5' },
@@ -169,6 +180,21 @@ function HeroPuzzle() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
             className="absolute inset-0 bg-emerald-500/[0.03] pointer-events-none" />
         )}
+        {/* Confetti burst on solve */}
+        {phase === 'revealed' && (
+          <div className="absolute inset-x-0 top-0 h-24 pointer-events-none overflow-hidden">
+            {CONFETTI_DOTS.map((dot, i) => (
+              <motion.span
+                key={i}
+                initial={{ opacity: 1, y: 60 }}
+                animate={{ opacity: 0, y: 0 }}
+                transition={{ delay: dot.delay, duration: 0.9, ease: 'easeOut' }}
+                className="absolute rounded-full"
+                style={{ left: dot.x, bottom: 0, width: dot.size, height: dot.size, backgroundColor: dot.color }}
+              />
+            ))}
+          </div>
+        )}
 
         <div className="p-5">
           {/* Header */}
@@ -221,7 +247,7 @@ function HeroPuzzle() {
           </div>
 
           {/* Status */}
-          <div className="min-h-[40px] flex items-center justify-center">
+          <div className="min-h-[56px] flex items-center justify-center">
             <AnimatePresence mode="wait">
               {phase === 'idle' && selected.length === 0 && (
                 <motion.p key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -245,18 +271,45 @@ function HeroPuzzle() {
                 </motion.p>
               )}
               {phase === 'solved' && (
-                <motion.p key="solved" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-                  className="text-sm font-bold text-emerald-400 text-center"
+                <motion.div key="solved" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+                  className="relative text-center"
                 >
-                  🎉 {TWO_SUM_NUMBERS[selected[0]]} + {TWO_SUM_NUMBERS[selected[1]]} = 9
-                </motion.p>
+                  <p className="text-sm font-bold text-emerald-400">
+                    🎉 {TWO_SUM_NUMBERS[selected[0]]} + {TWO_SUM_NUMBERS[selected[1]]} = 9
+                  </p>
+                  <motion.span
+                    initial={{ opacity: 1, y: 0 }}
+                    animate={{ opacity: 0, y: -30 }}
+                    transition={{ duration: 1.4, ease: 'easeOut' }}
+                    className="absolute -top-5 left-1/2 -translate-x-1/2 text-xs font-bold text-amber-400 pointer-events-none whitespace-nowrap"
+                  >
+                    +50 Intuition XP ✨
+                  </motion.span>
+                </motion.div>
               )}
               {phase === 'revealed' && (
                 <motion.div key="revealed" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-                  className="w-full"
+                  className="w-full relative"
                 >
+                  {/* XP float */}
+                  <motion.span
+                    initial={{ opacity: 1, y: 0 }}
+                    animate={{ opacity: 0, y: -28 }}
+                    transition={{ duration: 1.6, ease: 'easeOut' }}
+                    className="absolute -top-6 right-0 text-xs font-bold text-amber-400 pointer-events-none whitespace-nowrap"
+                  >
+                    +50 Intuition XP ✨
+                  </motion.span>
+                  {/* Solved message */}
+                  <motion.p
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="text-sm font-bold text-emerald-400 text-center mb-2"
+                  >
+                    🎉 Nice! You solved Two Sum
+                  </motion.p>
                   {/* Pattern reveal */}
-                  <div className="flex items-center justify-center gap-2 mb-3">
+                  <div className="flex items-center justify-center mb-2">
                     <motion.div
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
@@ -264,7 +317,7 @@ function HeroPuzzle() {
                       className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-500/15 border border-indigo-500/30"
                     >
                       <span className="text-sm">💡</span>
-                      <span className="text-xs font-bold text-indigo-300 uppercase tracking-wide">HashMap Pattern Unlocked</span>
+                      <span className="text-xs font-bold text-indigo-300 uppercase tracking-wide">Pattern unlocked: Pair Matching</span>
                     </motion.div>
                   </div>
                   {/* Mini AI nudge teaser */}
@@ -299,12 +352,12 @@ function HeroPuzzle() {
             >
               <div className="border-t border-emerald-500/20 bg-emerald-500/5 px-5 py-3 flex items-center justify-between">
                 <span className="text-[11px] text-emerald-400 font-medium flex items-center gap-1.5">
-                  <CheckCircle2 size={11} /> Now solve the full version
+                  <CheckCircle2 size={11} /> Ready for the full puzzle?
                 </span>
                 <Link href="/problem/two-sum"
-                  className="flex items-center gap-1 text-[11px] text-indigo-400 hover:text-indigo-300 font-semibold transition-colors"
+                  className="flex items-center gap-1.5 text-[11px] text-indigo-400 hover:text-indigo-300 font-semibold transition-colors group"
                 >
-                  Go <ArrowRight size={11} />
+                  Continue Full Puzzle <ArrowRight size={11} className="group-hover:translate-x-0.5 transition-transform" />
                 </Link>
               </div>
             </motion.div>
@@ -351,6 +404,40 @@ function StatsBar() {
         ))}
       </div>
     </motion.div>
+  );
+}
+
+// ─── Credibility Strip ────────────────────────────────────────────────────────
+
+const CREDIBILITY_ITEMS = [
+  { icon: '🏆', label: 'Top Interview 150', sub: 'Amazon, Google & more' },
+  { icon: '🎯', label: 'Blind 75', sub: 'All patterns covered' },
+  { icon: '🏢', label: 'Company-Tagged', sub: '10+ FAANG companies' },
+  { icon: '🎬', label: 'Visual Dry Runs', sub: 'Step-by-step traces' },
+  { icon: '✨', label: 'AI Hints', sub: 'Socratic, not spoilers' },
+];
+
+function CredibilityStrip() {
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5 }}
+      className="max-w-6xl mx-auto px-4 sm:px-6 pb-4"
+    >
+      <div className="rounded-2xl bg-[#111118] border border-[#1e1e2e] px-6 py-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
+        {CREDIBILITY_ITEMS.map((item) => (
+          <div key={item.label} className="flex items-center gap-3">
+            <span className="text-xl shrink-0">{item.icon}</span>
+            <div>
+              <p className="text-xs font-semibold text-[#e8e8f0] leading-none">{item.label}</p>
+              <p className="text-[10px] text-[#4a4a6a] mt-0.5">{item.sub}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </motion.section>
   );
 }
 
@@ -417,9 +504,33 @@ function AIDemoSection() {
         <h2 className="text-2xl sm:text-3xl font-bold text-[#e8e8f0] mb-1">
           Nudges, not answers
         </h2>
-        <p className="text-[#6b6b8a] text-sm mb-8">
+        <p className="text-[#6b6b8a] text-sm mb-6">
           Pick a problem. The AI asks you a question instead of solving it for you.
         </p>
+
+        {/* Comparison card */}
+        <div className="grid sm:grid-cols-2 gap-3 mb-8">
+          <div className="rounded-2xl bg-rose-500/5 border border-rose-500/15 p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-base">❌</span>
+              <span className="text-xs font-semibold text-rose-400 uppercase tracking-wide">Other platforms</span>
+            </div>
+            <p className="text-[11px] text-[#6b6b8a] italic leading-relaxed mb-1.5">
+              "Use a HashMap to store each number's complement as you iterate."
+            </p>
+            <p className="text-[10px] text-[#4a4a6a]">Gives the answer. You copy it. You forget it next week.</p>
+          </div>
+          <div className="rounded-2xl bg-emerald-500/5 border border-emerald-500/20 p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-base">✅</span>
+              <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wide">DSA Puzzles AI</span>
+            </div>
+            <p className="text-[11px] text-[#c8c8d8] italic leading-relaxed mb-1.5">
+              "What if you could remember every number you've seen — what would you look up?"
+            </p>
+            <p className="text-[10px] text-[#6b6b8a]">Guides you to the insight. You build it. You own it forever.</p>
+          </div>
+        </div>
 
         <div className="flex gap-2 flex-wrap mb-6">
           {demoProblems.map((p, i) => (
@@ -558,14 +669,14 @@ export function LandingPage() {
           <motion.h1 variants={fadeUp}
             className="text-4xl sm:text-5xl lg:text-[68px] font-black tracking-tight leading-[1.05]"
           >
-            <span className="text-[#e8e8f0]">Stop memorizing.</span>
+            <span className="text-[#e8e8f0]">Stop memorizing LeetCode.</span>
             <br />
-            <span className="gradient-text">Start thinking.</span>
+            <span className="gradient-text">Start building intuition.</span>
           </motion.h1>
 
-          <motion.p variants={fadeUp} className="text-base sm:text-lg text-[#6b6b8a] max-w-md leading-relaxed">
-            Solve puzzles. Build intuition. Unlock code.
-            <span className="text-[#e8e8f0]"> No memorization required.</span>
+          <motion.p variants={fadeUp} className="text-base sm:text-lg text-[#6b6b8a] max-w-lg leading-relaxed">
+            Learn DSA through interactive puzzles, AI-guided hints, visual dry runs, and{' '}
+            <span className="text-[#e8e8f0]">real interview patterns.</span>
           </motion.p>
 
           <motion.div variants={fadeUp} className="flex items-center gap-3 flex-wrap justify-center">
@@ -586,12 +697,21 @@ export function LandingPage() {
             </Link>
           </motion.div>
 
-          <motion.div variants={fadeUp}
-            className="flex items-center gap-4 sm:gap-6 text-xs sm:text-sm text-[#6b6b8a] flex-wrap justify-center"
-          >
-            <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />No signup required</span>
-            <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />Free forever</span>
-            <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-violet-400" />Blind 75 + Top 150</span>
+          <motion.div variants={fadeUp} className="flex items-center gap-2 flex-wrap justify-center">
+            {[
+              { label: '150+ Questions', color: 'bg-indigo-400' },
+              { label: 'Top Interview 150', color: 'bg-amber-400' },
+              { label: 'Blind 75', color: 'bg-violet-400' },
+              { label: 'AI-Guided Hints', color: 'bg-pink-400' },
+              { label: 'Free Forever', color: 'bg-emerald-400' },
+            ].map((badge) => (
+              <span key={badge.label}
+                className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-[#111118] border border-[#1e1e2e] text-[#6b6b8a]"
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${badge.color} shrink-0`} />
+                {badge.label}
+              </span>
+            ))}
           </motion.div>
 
           {/* Interactive mini puzzle */}
@@ -604,6 +724,9 @@ export function LandingPage() {
 
       {/* ── Stats Bar ── */}
       <StatsBar />
+
+      {/* ── Credibility Strip ── */}
+      <CredibilityStrip />
 
       {/* ── How It Works ── */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
@@ -671,7 +794,7 @@ export function LandingPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.07, duration: 0.4 }}
-                className="flex items-start gap-4 p-5 rounded-2xl bg-[#111118] border border-[#1e1e2e] hover:border-[#2a2a3e] transition-colors"
+                className="flex items-start gap-4 p-5 rounded-2xl bg-[#111118] border border-[#1e1e2e] hover:border-indigo-500/30 hover:shadow-[0_4px_20px_rgba(99,102,241,0.08)] hover:-translate-y-0.5 hover:bg-[#13131c] transition-all duration-200"
               >
                 <div className={`w-10 h-10 rounded-xl ${f.bg} flex items-center justify-center shrink-0`}>
                   <Icon size={18} className={f.color} />
@@ -710,12 +833,12 @@ export function LandingPage() {
                 transition={{ delay: i * 0.05 }}
               >
                 <Link href={`/problem/${q.slug}`}
-                  className="group flex flex-col gap-3 p-5 rounded-2xl bg-[#111118] border border-[#1e1e2e] hover:border-indigo-500/40 hover:bg-[#13131c] hover:shadow-[0_0_24px_rgba(99,102,241,0.1)] hover:scale-[1.01] transition-all duration-200 h-full"
+                  className="group flex flex-col gap-3 p-5 rounded-2xl bg-[#111118] border border-[#1e1e2e] hover:border-indigo-500/40 hover:bg-[#13131c] hover:shadow-[0_8px_30px_rgba(99,102,241,0.15)] hover:-translate-y-1 transition-all duration-200 h-full"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-[10px] text-[#4a4a6a] font-medium mb-0.5">LC #{q.leetcodeNumber}</p>
-                      <h3 className="text-[#e8e8f0] font-semibold text-sm group-hover:text-indigo-300 transition-colors leading-snug">
+                      <h3 className="text-[#e8e8f0] font-semibold text-base group-hover:text-indigo-300 transition-colors leading-snug">
                         {q.title}
                       </h3>
                       {q.questionSets && q.questionSets.length > 0 && (
@@ -753,25 +876,30 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ── CTA ── */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-14 text-center">
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+      {/* ── Footer CTA ── */}
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-16 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="p-6 sm:p-12 rounded-3xl bg-indigo-600/5 border border-indigo-500/20"
+          className="relative p-8 sm:p-14 rounded-3xl bg-gradient-to-br from-indigo-600/10 via-[#111118] to-violet-600/10 border border-indigo-500/25 overflow-hidden"
         >
-          <h2 className="text-2xl sm:text-4xl font-bold text-[#e8e8f0] mb-4">
-            {hasStarted ? 'Keep the momentum going' : 'Ready to actually understand DSA?'}
+          <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 via-transparent to-transparent pointer-events-none" />
+          <h2 className="text-2xl sm:text-4xl font-black text-[#e8e8f0] mb-4 leading-tight relative">
+            {hasStarted
+              ? 'Keep the momentum going'
+              : <>Ready to stop memorizing<br />and start understanding?</>}
           </h2>
-          <p className="text-[#6b6b8a] mb-8 text-base sm:text-lg max-w-md mx-auto">
+          <p className="text-[#6b6b8a] mb-8 text-base sm:text-lg max-w-sm mx-auto relative">
             {hasStarted
               ? `You've solved ${solvedCount} puzzle${solvedCount === 1 ? '' : 's'}. Intuition compounds — every puzzle makes the next one easier.`
-              : 'Solve puzzles. Build intuition. Ace the interview. No memorization required.'}
+              : 'One puzzle at a time. Build the intuition that makes interviews easy.'}
           </p>
           <Link href={`/problem/${ctaSlug}`}
-            className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-lg transition-all shadow-2xl shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-[1.02]"
+            className="relative inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-lg transition-all shadow-2xl shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-[1.02] active:scale-[0.98]"
           >
             <Puzzle size={18} />
-            {ctaLabel}
+            {hasStarted ? ctaLabel : 'Start First Puzzle'}
             <ArrowRight size={18} />
           </Link>
         </motion.div>
@@ -788,7 +916,7 @@ export function LandingPage() {
           </div>
 
           <div className="flex flex-col items-center sm:items-start gap-1">
-            <p className="text-xs text-[#e8e8f0] font-medium">Built with ❤️ for developers preparing smarter</p>
+            <p className="text-xs text-[#e8e8f0] font-medium">Built for developers who want to understand, not memorize.</p>
             <p className="text-xs text-[#4a4a6a]">by <span className="text-[#6b6b8a]">Ujjwal Singhal</span></p>
             <div className="flex items-center gap-3">
               <a href="https://www.linkedin.com/in/ujjwalsinghal" target="_blank" rel="noopener noreferrer"
