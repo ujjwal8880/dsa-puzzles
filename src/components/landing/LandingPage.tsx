@@ -73,7 +73,7 @@ const FEATURES = [
 ];
 
 const CONFETTI_DOTS = [
-  { x: '8%',  color: '#6366f1', delay: 0,    size: 5 },
+  { x: '8%', color: '#6366f1', delay: 0, size: 5 },
   { x: '20%', color: '#10b981', delay: 0.06, size: 4 },
   { x: '33%', color: '#f59e0b', delay: 0.03, size: 6 },
   { x: '48%', color: '#ec4899', delay: 0.09, size: 4 },
@@ -226,7 +226,7 @@ function HeroPuzzle() {
                   onClick={() => handleSelect(idx)}
                   animate={
                     isWrong ? { x: [-3, 3, -3, 3, 0] } :
-                    isSolvedCard ? { scale: [1, 1.12, 1.05] } : {}
+                      isSolvedCard ? { scale: [1, 1.12, 1.05] } : {}
                   }
                   transition={isWrong ? { duration: 0.28 } : { duration: 0.3 }}
                   whileHover={!isSolvedOrRevealed && !isSel ? { scale: 1.08, y: -2 } : {}}
@@ -681,7 +681,7 @@ export function LandingPage() {
 
           <motion.div variants={fadeUp} className="flex items-center gap-3 flex-wrap justify-center">
             <Link href={`/problem/${ctaSlug}`}
-              className="flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-base transition-all shadow-xl shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:scale-[1.02] active:scale-[0.98]"
+              className="flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-base transition-all shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:scale-[1.02] active:scale-[0.98]"
             >
               <Puzzle size={16} />
               <span className="flex flex-col items-start leading-tight">
